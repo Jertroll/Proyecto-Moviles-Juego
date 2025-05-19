@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 import {
   IonInput,
   IonButton,
@@ -9,7 +12,7 @@ import {
   IonText,
   IonLoading,
 } from "@ionic/react";
-import { auth, authReady } from "../config/firebaseConfig";
+import { auth } from "../config/firebaseConfig";
 
 const LoginEmailAndPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -24,9 +27,21 @@ const LoginEmailAndPassword: React.FC = () => {
     setError(null);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password).then(() => {
-        history.replace("/home");
-      });
+      await signInWithEmailAndPassword(auth, email, password);
+      history.replace("/home");
+    } catch (error: any) {
+      setError(error.message);
+    }
+    setLoading(false);
+  };
+
+  const handleRegister = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      history.replace("/home");
     } catch (error: any) {
       setError(error.message);
     }
@@ -34,7 +49,7 @@ const LoginEmailAndPassword: React.FC = () => {
   };
 
   if (loading) {
-    return <IonLoading isOpen message="Cargando sesión..." />;
+    return <IonLoading isOpen message="Procesando..." />;
   }
 
   return (
@@ -45,7 +60,7 @@ const LoginEmailAndPassword: React.FC = () => {
           <IonInput
             type="email"
             value={email}
-            onIonChange={(e) => setEmail(e.detail.value!)}
+            onIonChange={(e) => setEmail(e.detail.value ?? "")}
             required
           />
         </IonItem>
@@ -58,15 +73,19 @@ const LoginEmailAndPassword: React.FC = () => {
             required
           />
         </IonItem>
-        {error && (
-          <IonText color="danger">
-            <p>{error}</p>
-          </IonText>
-        )}
         <IonButton expand="block" type="submit" disabled={!email || !password}>
           Login
         </IonButton>
       </form>
+      <IonButton
+        expand="block"
+        color="primary"
+        onClick={handleRegister}
+        disabled={!email || !password}
+        style={{ marginTop: "1rem", color: "black" }}
+      >
+        Registrar
+      </IonButton>
     </>
   );
 };

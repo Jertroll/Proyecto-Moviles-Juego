@@ -1,5 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from "@ionic/react";
-import LoginEmailAndPassword from "../service/AuthService";
+import LoginEmailAndPassword from "../service/LoginService";
 
 const Login: React.FC = () => {
   return (
