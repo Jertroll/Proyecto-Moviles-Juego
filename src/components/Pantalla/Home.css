@@ -1,0 +1,27 @@
+ion-content.main-screen {
+  --background: url('/Fondo.png') center/cover no-repeat;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.main-button {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 30px;
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.main-button:hover {
+  background-color: rgba(255, 255, 255, 1);
+}

@@ -1,2 +1,8 @@
+body {
+  background-image: url('/Fondo.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
