@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 const Tamaño_Estrella = 24;
 const Tamaño_Estrella_Morada = 32;
@@ -12,19 +12,27 @@ type Estrella = {
   tipo: "amarilla" | "morada";
 };
 
+type Props = {
+  stars: Estrella[];
+  setStars: React.Dispatch<React.SetStateAction<Estrella[]>>;
+  gameOver: boolean;
+};
+
 let idGlobal = 0;
 
-const Estrellas = () => {
-  const [estrellas, setEstrellas] = useState<Estrella[]>([]);
+const Estrellas = ({ stars, setStars, gameOver }: Props) => {
   const estrellasRef = useRef<Estrella[]>([]);
   const totalAmarillasRef = useRef(0);
-  const ultimoMorado = useRef(0); // 🔸 para saber cuántas moradas ya se lanzaron
+  const ultimoMorado = useRef(0);
+
+  // Mantener ref sincronizada con el estado stars
+  useEffect(() => {
+    estrellasRef.current = stars;
+  }, [stars]);
 
   useEffect(() => {
-    estrellasRef.current = estrellas;
-  }, [estrellas]);
+    if (gameOver) return; // Si el juego terminó, no generar más estrellas
 
-  useEffect(() => {
     const intervaloAmarillas = setInterval(() => {
       const cantidadActualAmarillas = estrellasRef.current.filter((e) => e.tipo === "amarilla").length;
       if (cantidadActualAmarillas >= Maximo_Estrellas_Amarillas) return;
@@ -35,7 +43,7 @@ const Estrellas = () => {
 
       const nuevaEstrella: Estrella = { id, x, y, tipo: "amarilla" };
 
-      setEstrellas((prev) => {
+      setStars((prev) => {
         const actualizadas = [...prev, nuevaEstrella];
         estrellasRef.current = actualizadas;
         return actualizadas;
@@ -43,7 +51,6 @@ const Estrellas = () => {
 
       totalAmarillasRef.current += 1;
 
-      // 🔁 Cada 15 amarillas generadas, crea una morada
       if (
         totalAmarillasRef.current % 15 === 0 &&
         totalAmarillasRef.current !== ultimoMorado.current
@@ -53,7 +60,7 @@ const Estrellas = () => {
       }
 
       setTimeout(() => {
-        setEstrellas((prev) => {
+        setStars((prev) => {
           const filtradas = prev.filter((estrella) => estrella.id !== id);
           estrellasRef.current = filtradas;
           return filtradas;
@@ -62,7 +69,7 @@ const Estrellas = () => {
     }, 2000);
 
     return () => clearInterval(intervaloAmarillas);
-  }, []);
+  }, [gameOver, setStars]);
 
   const crearEstrellaMorada = () => {
     const id = idGlobal++;
@@ -71,14 +78,14 @@ const Estrellas = () => {
 
     const nuevaEstrella: Estrella = { id, x, y, tipo: "morada" };
 
-    setEstrellas((prev) => {
+    setStars((prev) => {
       const actualizadas = [...prev, nuevaEstrella];
       estrellasRef.current = actualizadas;
       return actualizadas;
     });
 
     setTimeout(() => {
-      setEstrellas((prev) => {
+      setStars((prev) => {
         const filtradas = prev.filter((estrella) => estrella.id !== id);
         estrellasRef.current = filtradas;
         return filtradas;
@@ -88,7 +95,7 @@ const Estrellas = () => {
 
   return (
     <>
-      {estrellas.map((estrella) => (
+      {stars.map((estrella) => (
         <div
           key={estrella.id}
           style={{
@@ -103,6 +110,7 @@ const Estrellas = () => {
               estrella.tipo === "amarilla"
                 ? "0 0 10px gold"
                 : "0 0 10px violet",
+            userSelect: "none",
           }}
         >
           ⭐
