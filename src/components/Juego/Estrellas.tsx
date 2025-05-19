@@ -1,97 +1,106 @@
 import { useEffect, useRef, useState } from "react";
 
-const STAR_SIZE = 24;
-const STAR_DURATION = 8000;
-const MAX_YELLOW_STARS = 3;
+const Tamaño_Estrella = 24;
+const Tamaño_Estrella_Morada = 32;
+const Duracion_Estrella = 8000;
+const Maximo_Estrellas_Amarillas = 3;
 
-type Star = {
+type Estrella = {
   id: number;
   x: number;
   y: number;
-  type: "yellow" | "purple";
+  tipo: "amarilla" | "morada";
 };
 
+let idGlobal = 0;
+
 const Estrellas = () => {
-  const [stars, setStars] = useState<Star[]>([]);
-  const starsRef = useRef<Star[]>([]); // 🔧 Referencia persistente
+  const [estrellas, setEstrellas] = useState<Estrella[]>([]);
+  const estrellasRef = useRef<Estrella[]>([]);
+  const totalAmarillasRef = useRef(0);
+  const ultimoMorado = useRef(0); // 🔸 para saber cuántas moradas ya se lanzaron
 
   useEffect(() => {
-    starsRef.current = stars;
-  }, [stars]);
+    estrellasRef.current = estrellas;
+  }, [estrellas]);
 
   useEffect(() => {
-    const yellowInterval = setInterval(() => {
-      const yellowCount = starsRef.current.filter((s) => s.type === "yellow").length;
-      if (yellowCount >= MAX_YELLOW_STARS) return;
+    const intervaloAmarillas = setInterval(() => {
+      const cantidadActualAmarillas = estrellasRef.current.filter((e) => e.tipo === "amarilla").length;
+      if (cantidadActualAmarillas >= Maximo_Estrellas_Amarillas) return;
 
-      const id = Date.now();
-      const x = Math.random() * (window.innerWidth - STAR_SIZE);
-      const y = Math.random() * (window.innerHeight - STAR_SIZE);
+      const id = idGlobal++;
+      const x = Math.random() * (window.innerWidth - Tamaño_Estrella);
+      const y = Math.random() * (window.innerHeight - Tamaño_Estrella);
 
-      const newStar: Star = { id, x, y, type: "yellow" };
+      const nuevaEstrella: Estrella = { id, x, y, tipo: "amarilla" };
 
-      setStars((prev) => {
-        const updated = [...prev, newStar];
-        starsRef.current = updated;
-        return updated;
+      setEstrellas((prev) => {
+        const actualizadas = [...prev, nuevaEstrella];
+        estrellasRef.current = actualizadas;
+        return actualizadas;
       });
 
+      totalAmarillasRef.current += 1;
+
+      // 🔁 Cada 15 amarillas generadas, crea una morada
+      if (
+        totalAmarillasRef.current % 15 === 0 &&
+        totalAmarillasRef.current !== ultimoMorado.current
+      ) {
+        ultimoMorado.current = totalAmarillasRef.current;
+        crearEstrellaMorada();
+      }
+
       setTimeout(() => {
-        setStars((prev) => {
-          const filtered = prev.filter((star) => star.id !== id);
-          starsRef.current = filtered;
-          return filtered;
+        setEstrellas((prev) => {
+          const filtradas = prev.filter((estrella) => estrella.id !== id);
+          estrellasRef.current = filtradas;
+          return filtradas;
         });
-      }, STAR_DURATION);
-    }, 2000); // cada 2 segundos
+      }, Duracion_Estrella);
+    }, 2000);
 
-    const spawnPurple = () => {
-      const delay = Math.random() * 5000 + 5000;
-      setTimeout(() => {
-        const id = Date.now();
-        const x = Math.random() * (window.innerWidth - STAR_SIZE);
-        const y = Math.random() * (window.innerHeight - STAR_SIZE);
-
-        const newStar: Star = { id, x, y, type: "purple" };
-
-        setStars((prev) => {
-          const updated = [...prev, newStar];
-          starsRef.current = updated;
-          return updated;
-        });
-
-        setTimeout(() => {
-          setStars((prev) => {
-            const filtered = prev.filter((star) => star.id !== id);
-            starsRef.current = filtered;
-            return filtered;
-          });
-        }, STAR_DURATION);
-
-        spawnPurple(); // recursivo
-      }, delay);
-    };
-
-    spawnPurple();
-
-    return () => clearInterval(yellowInterval);
+    return () => clearInterval(intervaloAmarillas);
   }, []);
+
+  const crearEstrellaMorada = () => {
+    const id = idGlobal++;
+    const x = Math.random() * (window.innerWidth - Tamaño_Estrella_Morada);
+    const y = Math.random() * (window.innerHeight - Tamaño_Estrella_Morada);
+
+    const nuevaEstrella: Estrella = { id, x, y, tipo: "morada" };
+
+    setEstrellas((prev) => {
+      const actualizadas = [...prev, nuevaEstrella];
+      estrellasRef.current = actualizadas;
+      return actualizadas;
+    });
+
+    setTimeout(() => {
+      setEstrellas((prev) => {
+        const filtradas = prev.filter((estrella) => estrella.id !== id);
+        estrellasRef.current = filtradas;
+        return filtradas;
+      });
+    }, Duracion_Estrella);
+  };
 
   return (
     <>
-      {stars.map((star) => (
+      {estrellas.map((estrella) => (
         <div
-          key={star.id}
+          key={estrella.id}
           style={{
             position: "absolute",
-            top: star.y,
-            left: star.x,
-            fontSize: STAR_SIZE,
+            top: estrella.y,
+            left: estrella.x,
+            fontSize: estrella.tipo === "morada" ? Tamaño_Estrella_Morada : Tamaño_Estrella,
             zIndex: 10,
             transition: "opacity 0.3s ease-in-out",
-            color: star.type === "yellow" ? "gold" : "violet",
+            color: estrella.tipo === "amarilla" ? "gold" : "violet",
             textShadow:
-              star.type === "yellow"
+              estrella.tipo === "amarilla"
                 ? "0 0 10px gold"
                 : "0 0 10px violet",
           }}
