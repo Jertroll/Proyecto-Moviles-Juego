@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { IonPage, IonContent } from '@ionic/react';
 import { Motion } from "@capacitor/motion";
-
+import Estrellas from "./Estrellas";
 const BALL_SIZE = 30;
 
 const Acelerometro = () => {
@@ -36,19 +37,25 @@ const Acelerometro = () => {
   }, []);
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: position.y,
-        left: position.x,
-        width: BALL_SIZE,
-        height: BALL_SIZE,
-        borderRadius: "50%",
-        backgroundColor: "deepskyblue",
-        boxShadow: "0 0 15px 5px rgba(0, 191, 255, 0.6)",
-        transition: "top 0.05s linear, left 0.05s linear",
-      }}
-    />
+    <IonPage>
+      <Estrellas />
+      <IonContent fullscreen>
+        <div
+          style={{
+            position: "absolute",
+            top: position.y,
+            left: position.x,
+            width: BALL_SIZE,
+            height: BALL_SIZE,
+            borderRadius: "50%",
+            backgroundColor: "deepskyblue",
+            boxShadow: "0 0 15px 5px rgba(0, 191, 255, 0.6)",
+            transition: "top 0.05s linear, left 0.05s linear",
+            zIndex: 20
+          }}
+        />
+      </IonContent>
+    </IonPage>
   );
 };
 

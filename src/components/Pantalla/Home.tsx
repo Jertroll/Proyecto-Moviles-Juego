@@ -1,18 +1,22 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useIonRouter } from '@ionic/react';
 import { IonContent, IonPage } from '@ionic/react';
 import './Home.css';
 
 const Home: React.FC = () => {
-  const history = useHistory();
+  const router = useIonRouter ();
 
   const handlePlay = () => {
-    history.push('/jugar');
+    console.log("handlePlay ejecutado");
+    router.push('/jugar');
   };
 
   return (
     <IonPage>
-      <IonContent fullscreen className="main-screen">
+      <IonContent
+        fullscreen
+        className="main-screen"
+      >
         <div className="button-container">
           <button className="main-button" onClick={handlePlay}>Jugar</button>
           <button className="main-button">Retar Amigos</button>

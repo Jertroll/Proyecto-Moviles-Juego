@@ -28,7 +28,9 @@ const App: React.FC = () => (
     <IonReactRouter>
       <IonRouterOutlet>
         <Route exact path="/" component={Home} />
-        <Route exact path="/jugar" component={Acelerometro} />
+        <Route exact path="/jugar">
+        <Acelerometro />
+        </Route>
       </IonRouterOutlet>
     </IonReactRouter>
   </IonApp>

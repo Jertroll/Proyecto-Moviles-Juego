@@ -1,10 +1,5 @@
-.main-screen {
-  background-image: url('/Fondo.png');
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+ion-content.main-screen {
+  --background: url('/Fondo.png') center/cover no-repeat;
 }
 
 .button-container {
@@ -12,6 +7,8 @@
   flex-direction: column;
   gap: 20px;
   align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .main-button {
