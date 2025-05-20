@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
-import { IonPage, IonContent } from "@ionic/react";
+import { IonPage, IonContent, IonButton } from "@ionic/react";
+import { useHistory } from "react-router-dom";
 import Acelerometro from "./Acelerometro";
 import Estrellas from "./Estrellas";
 import GameLogic from "./Logica";
 
 const Juego = () => {
+  const history = useHistory();
   const BALL_SIZE = 40;
   const STAR_SIZE_AMARILLA = 30;
   const STAR_SIZE_MORADA = 40;
+  const INITIAL_TIME = 60;
 
+  // Estados del juego
   const [position, setPosition] = useState({
     x: window.innerWidth / 2 - BALL_SIZE / 2,
     y: window.innerHeight / 2 - BALL_SIZE / 2,
@@ -19,18 +23,35 @@ const Juego = () => {
   >([]);
 
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(40);
+  const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
   const [gameOver, setGameOver] = useState(false);
 
-  // ✅ Función con los parámetros correctos esperados por GameLogic
+  // Función para reiniciar completamente el juego
+  const resetGame = () => {
+    setPosition({
+      x: window.innerWidth / 2 - BALL_SIZE / 2,
+      y: window.innerHeight / 2 - BALL_SIZE / 2,
+    });
+    setStars([]);
+    setScore(0);
+    setTimeLeft(INITIAL_TIME);
+    setGameOver(false);
+  };
+
   const handleStarCollected = (id: number, puntos: number) => {
-     console.log(`✅ handleStarCollected: id=${id}, puntos=${puntos}`);
+    console.log(`✅ handleStarCollected: id=${id}, puntos=${puntos}`);
     setStars((prevStars) => prevStars.filter((s) => s.id !== id));
     setScore((prev) => prev + puntos);
   };
 
-  // Temporizador
+  const handleGoHome = () => {
+    history.push("/"); 
+  };
+
   useEffect(() => {
+    // Reiniciar el juego cuando el componente se monta
+    resetGame();
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -42,7 +63,10 @@ const Juego = () => {
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      resetGame(); // Limpieza al desmontar
+    };
   }, []);
 
   return (
@@ -78,10 +102,25 @@ const Juego = () => {
               justifyContent: "center",
               alignItems: "center",
               zIndex: 100,
+              gap: "20px", 
             }}
           >
-            <h1>🎉 ¡Tiempo terminado!</h1>
-            <h2>Tu puntaje: {score}</h2>
+            <h1 style={{ fontSize: "2rem", marginBottom: "10px" }}>🎉 ¡Tiempo terminado!</h1>
+            <h2 style={{ fontSize: "1.5rem", marginBottom: "30px" }}>Tu puntaje: {score}</h2>
+            
+            <IonButton 
+              onClick={handleGoHome}
+              style={{
+                "--background": "#3880ff",
+                "--background-hover": "#4d8cff",
+                "--color": "white",
+                fontSize: "1.2rem",
+                padding: "20px 30px",
+                borderRadius: "10px",
+              }}
+            >
+              Salir
+            </IonButton>
           </div>
         )}
 
