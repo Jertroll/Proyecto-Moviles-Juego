@@ -5,9 +5,9 @@ import Estrellas from "./Estrellas";
 import GameLogic from "./Logica";
 
 const Juego = () => {
-  const BALL_SIZE = 30;
-  const STAR_SIZE_AMARILLA = 24;
-  const STAR_SIZE_MORADA = 30;
+  const BALL_SIZE = 40;
+  const STAR_SIZE_AMARILLA = 30;
+  const STAR_SIZE_MORADA = 40;
 
   const [position, setPosition] = useState({
     x: window.innerWidth / 2 - BALL_SIZE / 2,

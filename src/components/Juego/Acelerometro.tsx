@@ -19,8 +19,8 @@ const Acelerometro = ({ position, setPosition, ballSize }: Props) => {
         const maxHeight = window.innerHeight - ballSize;
 
         setPosition((prev) => ({
-          x: Math.min(Math.max(prev.x + x * 7, 0), maxWidth),
-          y: Math.min(Math.max(prev.y - z * 7, 0), maxHeight),
+          x: Math.min(Math.max(prev.x + x * 5, 0), maxWidth),
+          y: Math.min(Math.max(prev.y - z * 5, 0), maxHeight),
         }));
       });
     };
