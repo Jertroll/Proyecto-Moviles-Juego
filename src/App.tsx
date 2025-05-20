@@ -5,8 +5,9 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Route } from 'react-router-dom';
-import Acelerometro from './components/Juego/Acelerometro';
+//import Acelerometro from './components/Juego/Acelerometro';
 import Home from './components/Pantalla/Home';
+import Juego from './components/Juego/Juego';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -29,7 +30,7 @@ const App: React.FC = () => (
       <IonRouterOutlet>
         <Route exact path="/" component={Home} />
         <Route exact path="/jugar">
-        <Acelerometro />
+        <Juego />
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>
