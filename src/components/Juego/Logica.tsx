@@ -28,6 +28,8 @@ const GameLogic = ({
     const interval = setInterval(() => {
       const ballCenterX = ballPosition.x + ballRadius;
       const ballCenterY = ballPosition.y + ballRadius;
+       console.log("🎯 Ball pos:", ballPosition);
+       console.log("✨ Stars:", stars);
 
       stars.forEach((star) => {
         const starSize = star.tipo === "amarilla" ? starSizeAmarilla : starSizeMorada;
@@ -40,6 +42,7 @@ const GameLogic = ({
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < ballRadius + starRadius) {
+           console.log(`⭐ Recolectada: ID ${star.id}, tipo: ${star.tipo}`);
           const puntos = star.tipo === "amarilla" ? 1 : 5;
           onStarCollected(star.id, puntos);
         }

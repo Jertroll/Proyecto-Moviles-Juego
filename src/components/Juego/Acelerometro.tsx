@@ -47,6 +47,7 @@ const Acelerometro = ({ position, setPosition, ballSize }: Props) => {
         zIndex: 20,
       }}
     />
+    
   );
 };
 

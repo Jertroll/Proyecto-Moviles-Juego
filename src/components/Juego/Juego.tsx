@@ -24,6 +24,7 @@ const Juego = () => {
 
   // ✅ Función con los parámetros correctos esperados por GameLogic
   const handleStarCollected = (id: number, puntos: number) => {
+     console.log(`✅ handleStarCollected: id=${id}, puntos=${puntos}`);
     setStars((prevStars) => prevStars.filter((s) => s.id !== id));
     setScore((prev) => prev + puntos);
   };
