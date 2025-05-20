@@ -12,7 +12,8 @@ type Props = {
   stars: Star[];
   onStarCollected: (id: number, puntos: number) => void;
   ballRadius: number;
-  starSize: number;
+  starSizeAmarilla: number;
+  starSizeMorada: number;
 };
 
 const GameLogic = ({
@@ -20,26 +21,35 @@ const GameLogic = ({
   stars,
   onStarCollected,
   ballRadius,
-  starSize,
+  starSizeAmarilla,
+  starSizeMorada,
 }: Props) => {
   useEffect(() => {
     const interval = setInterval(() => {
+      const ballCenterX = ballPosition.x + ballRadius;
+      const ballCenterY = ballPosition.y + ballRadius;
+
       stars.forEach((star) => {
-        const dx = star.x + starSize / 2 - ballPosition.x;
-        const dy = star.y + starSize / 2 - ballPosition.y;
+        const starSize = star.tipo === "amarilla" ? starSizeAmarilla : starSizeMorada;
+        const starRadius = starSize / 2;
+        const starCenterX = star.x + starRadius;
+        const starCenterY = star.y + starRadius;
+
+        const dx = starCenterX - ballCenterX;
+        const dy = starCenterY - ballCenterY;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < ballRadius + starSize / 2) {
+        if (distance < ballRadius + starRadius) {
           const puntos = star.tipo === "amarilla" ? 1 : 5;
           onStarCollected(star.id, puntos);
         }
       });
-    }, 100); // Verificar colisiones cada 100ms
+    }, 100);
 
     return () => clearInterval(interval);
-  }, [stars, ballPosition]);
+  }, [stars, ballPosition, ballRadius, starSizeAmarilla, starSizeMorada, onStarCollected]);
 
-  return null; // No renderiza nada
+  return null;
 };
 
 export default GameLogic;

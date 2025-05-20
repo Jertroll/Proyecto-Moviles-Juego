@@ -115,13 +115,15 @@ const Acelerometro = () => {
             />
 
             {/* Lógica invisible para verificar colisiones */}
-            <GameLogic
+           <GameLogic
               ballPosition={position}
               stars={stars}
               onStarCollected={handleStarCollected}
               ballRadius={BALL_SIZE / 2}
-              starSize={24} // Considera que acá usas el tamaño de estrella amarilla para la colisión, ajusta si quieres
+              starSizeAmarilla={24}
+              starSizeMorada={30}
             />
+
           </>
         )}
       </IonContent>
