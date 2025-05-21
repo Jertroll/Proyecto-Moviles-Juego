@@ -2,13 +2,21 @@ import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
   IonRouterOutlet,
+  IonTabs,
+  IonTabBar,
+  IonTabButton,
+  IonLabel,
+  IonIcon,
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Route } from 'react-router-dom';
-//import Acelerometro from './components/Juego/Acelerometro';
+
 import Home from './components/Pantalla/Home';
 import Juego from './components/Juego/Juego';
+import EnviarReto from './components/Retos/EnviarReto';
+import Login from './pages/Login';
+
+import { home, ellipse, square } from 'ionicons/icons';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -22,21 +30,14 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import '@ionic/react/css/palettes/dark.system.css';
 import './theme/variables.css';
+import RetosRecibidos from "./components/Retos/RetosRecibidos";
+import HistorialRetos from "./components/Retos/HistorialRetos";
 
 setupIonicReact();
+const App: React.FC = () => {
+  const { user, loading } = useAuth();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route exact path="/" component={Home} />
-        <Route exact path="/jugar">
-        <Juego />
-        </Route>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+  if (loading) return <div>Cargando...</div>; // O un spinner de Ionic
 
   return (
     <IonApp>
@@ -46,28 +47,33 @@ const App: React.FC = () => (
             <Route exact path="/login">
               <Login />
             </Route>
-            
+
             {user ? (
               <>
                 <Route exact path="/home">
                   <Home />
                 </Route>
-                <Route exact path="/tab2">
-                  <Tab2 />
+                <Route exact path="/jugar">
+                  <Juego />
                 </Route>
-                <Route exact path="/tab3">
-                  <Tab3 />
+                <Route exact path="/enviar-reto">
+                  <EnviarReto location={{
+                    state: { puntaje: 0 }
+                  }} />
                 </Route>
+                <Route path="/retos-recibidos" component={RetosRecibidos} exact />
+                <Route path="/historial-retos" component={HistorialRetos} exact />
                 <Route exact path="/">
                   <Redirect to="/home" />
                 </Route>
               </>
             ) : (
-              <Redirect to="/login" />
+              <Route path="*">
+                <Redirect to="/login" />
+              </Route>
             )}
           </IonRouterOutlet>
 
-          {/* Menú de tabs SOLO cuando hay usuario */}
           {user && (
             <IonTabBar slot="bottom">
               <IonTabButton tab="home" href="/home">
@@ -88,6 +94,7 @@ const App: React.FC = () => (
       </IonReactRouter>
     </IonApp>
   );
+
 };
 
 export default App;
