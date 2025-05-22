@@ -14,7 +14,7 @@ import {
 } from "@ionic/react";
 import { auth } from "../config/firebaseConfig";
 
-const LoginEmailAndPassword: React.FC = () => {
+const LoginService: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -90,4 +90,4 @@ const LoginEmailAndPassword: React.FC = () => {
   );
 };
 
-export default LoginEmailAndPassword;
+export default LoginService;
