@@ -13,6 +13,7 @@ import {
   IonLoading,
 } from "@ionic/react";
 import { auth } from "../config/firebaseConfig";
+import "./LoginService.css";
 
 const LoginService: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +29,7 @@ const LoginService: React.FC = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      history.replace("/home");
+      history.replace("/");
     } catch (error: any) {
       setError(error.message);
     }
@@ -41,7 +42,7 @@ const LoginService: React.FC = () => {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      history.replace("/home");
+      history.replace("/");
     } catch (error: any) {
       setError(error.message);
     }
@@ -53,9 +54,9 @@ const LoginService: React.FC = () => {
   }
 
   return (
-    <>
-      <form onSubmit={handleLogin}>
-        <IonItem>
+    <div className="login-container">
+      <form onSubmit={handleLogin} className="login-form">
+        <IonItem lines="none">
           <IonLabel position="floating">Email</IonLabel>
           <IonInput
             type="email"
@@ -64,7 +65,7 @@ const LoginService: React.FC = () => {
             required
           />
         </IonItem>
-        <IonItem>
+        <IonItem lines="none">
           <IonLabel position="floating">Password</IonLabel>
           <IonInput
             type="password"
@@ -73,8 +74,9 @@ const LoginService: React.FC = () => {
             required
           />
         </IonItem>
-        <IonButton expand="block" type="submit" disabled={!email || !password}>
-          Login
+        {error && <IonText color="danger">{error}</IonText>}
+        <IonButton expand="block" type="submit" disabled={!email || !password} className="main-button">
+          Iniciar Sesión
         </IonButton>
       </form>
       <IonButton
@@ -82,11 +84,12 @@ const LoginService: React.FC = () => {
         color="primary"
         onClick={handleRegister}
         disabled={!email || !password}
-        style={{ marginTop: "1rem", color: "black" }}
+        className="main-button"
+        style={{ marginTop: "1rem" }}
       >
         Registrar
       </IonButton>
-    </>
+    </div>
   );
 };
 
