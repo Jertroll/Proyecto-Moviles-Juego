@@ -12,7 +12,6 @@ const Juego = () => {
   const STAR_SIZE_MORADA = 40;
   const INITIAL_TIME = 60;
 
-  // Estados del juego
   const [position, setPosition] = useState({
     x: window.innerWidth / 2 - BALL_SIZE / 2,
     y: window.innerHeight / 2 - BALL_SIZE / 2,
@@ -26,7 +25,6 @@ const Juego = () => {
   const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
   const [gameOver, setGameOver] = useState(false);
 
-  // Función para reiniciar completamente el juego
   const resetGame = () => {
     setPosition({
       x: window.innerWidth / 2 - BALL_SIZE / 2,
@@ -39,17 +37,15 @@ const Juego = () => {
   };
 
   const handleStarCollected = (id: number, puntos: number) => {
-    console.log(`✅ handleStarCollected: id=${id}, puntos=${puntos}`);
     setStars((prevStars) => prevStars.filter((s) => s.id !== id));
     setScore((prev) => prev + puntos);
   };
 
   const handleGoHome = () => {
-    history.push("/"); 
+    history.push("/");
   };
 
   useEffect(() => {
-    // Reiniciar el juego cuando el componente se monta
     resetGame();
 
     const timer = setInterval(() => {
@@ -65,7 +61,7 @@ const Juego = () => {
 
     return () => {
       clearInterval(timer);
-      resetGame(); // Limpieza al desmontar
+      resetGame();
     };
   }, []);
 
@@ -102,13 +98,17 @@ const Juego = () => {
               justifyContent: "center",
               alignItems: "center",
               zIndex: 100,
-              gap: "20px", 
+              gap: "20px",
             }}
           >
-            <h1 style={{ fontSize: "2rem", marginBottom: "10px" }}>🎉 ¡Tiempo terminado!</h1>
-            <h2 style={{ fontSize: "1.5rem", marginBottom: "30px" }}>Tu puntaje: {score}</h2>
-            
-            <IonButton 
+            <h1 style={{ fontSize: "2rem", marginBottom: "10px" }}>
+              🎉 ¡Tiempo terminado!
+            </h1>
+            <h2 style={{ fontSize: "1.5rem", marginBottom: "30px" }}>
+              Tu puntaje: {score}
+            </h2>
+
+            <IonButton
               onClick={handleGoHome}
               style={{
                 "--background": "#3880ff",
@@ -121,6 +121,7 @@ const Juego = () => {
             >
               Salir
             </IonButton>
+
           </div>
         )}
 
