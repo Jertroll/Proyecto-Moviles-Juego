@@ -2,7 +2,7 @@ import React from "react";
 import { useIonRouter, IonContent, IonPage } from "@ionic/react";
 import "./Home.css";
 import { useAuth } from "../../context/AuthContext";
-import Login from "../../pages/Login";
+
 
 const Home: React.FC = () => {
   const router = useIonRouter();

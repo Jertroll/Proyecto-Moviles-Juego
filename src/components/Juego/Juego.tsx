@@ -42,6 +42,7 @@ const Juego = () => {
   };
 
   const handleGoHome = () => {
+    resetGame();
     history.push("/");
   };
 
