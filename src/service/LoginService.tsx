@@ -12,15 +12,52 @@ import {
   IonText,
   IonLoading,
 } from "@ionic/react";
-import { auth } from "../config/firebaseConfig";
-import "./LoginService.css";
+import { auth, messaging } from "../config/firebaseConfig";
+import { getToken } from "firebase/messaging";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 
-const LoginService: React.FC = () => {
+const vapidKey =
+  "BAffDkGrxLFl2QWIWxfnh4MaTZmqnYgmrM-ddelh37V_dkLlyfmExc6e5yzL252bUHTsuqSLSNSRsMAwyTIRL_s";
+
+const LoginEmailAndPassword: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const history = useHistory();
+
+  const guardarTokenDispositivo = async (uid: string, email: string) => {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        console.warn("Permiso de notificaciones no otorgado");
+        return;
+      }
+
+      const token = await getToken(messaging, {
+        vapidKey,
+      });
+
+      if (token) {
+        const db = getFirestore();
+        await setDoc(
+          doc(db, "usuarios", uid),
+          {
+            tokenDispositivo: token,
+            correo: email,
+          },
+          { merge: true }
+        );
+        console.log("Token y correo guardados en Firebase:", token, email);
+      } else {
+        console.warn(
+          "No se pudo obtener el token. Asegúrate de que el SW esté registrado y se haya dado permiso."
+        );
+      }
+    } catch (error) {
+      console.error("Error al obtener el token de dispositivo:", error);
+    }
+  };
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -28,8 +65,9 @@ const LoginService: React.FC = () => {
     setError(null);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      history.replace("/");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await guardarTokenDispositivo(userCredential.user.uid, email);
+      history.replace("/home");
     } catch (error: any) {
       setError(error.message);
     }
@@ -41,22 +79,19 @@ const LoginService: React.FC = () => {
     setError(null);
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      history.replace("/");
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await guardarTokenDispositivo(userCredential.user.uid, email);
+      history.replace("/home");
     } catch (error: any) {
       setError(error.message);
     }
     setLoading(false);
   };
 
-  if (loading) {
-    return <IonLoading isOpen message="Procesando..." />;
-  }
-
   return (
-    <div className="login-container">
-      <form onSubmit={handleLogin} className="login-form">
-        <IonItem lines="none">
+    <>
+      <form onSubmit={handleLogin}>
+        <IonItem>
           <IonLabel position="floating">Email</IonLabel>
           <IonInput
             type="email"
@@ -65,7 +100,7 @@ const LoginService: React.FC = () => {
             required
           />
         </IonItem>
-        <IonItem lines="none">
+        <IonItem>
           <IonLabel position="floating">Password</IonLabel>
           <IonInput
             type="password"
@@ -74,23 +109,29 @@ const LoginService: React.FC = () => {
             required
           />
         </IonItem>
-        {error && <IonText color="danger">{error}</IonText>}
-        <IonButton expand="block" type="submit" disabled={!email || !password} className="main-button">
-          Iniciar Sesión
+        <IonButton expand="block" type="submit" disabled={!email || !password}>
+          Login
         </IonButton>
       </form>
+
       <IonButton
         expand="block"
         color="primary"
         onClick={handleRegister}
         disabled={!email || !password}
-        className="main-button"
-        style={{ marginTop: "1rem" }}
+        style={{ marginTop: "1rem", color: "black" }}
       >
         Registrar
       </IonButton>
-    </div>
+
+      {error && (
+        <IonText color="danger">
+          <p>{error}</p>
+        </IonText>
+      )}
+      <IonLoading isOpen={loading} message="Procesando..." />
+    </>
   );
 };
 
-export default LoginService;
+export default LoginEmailAndPassword;

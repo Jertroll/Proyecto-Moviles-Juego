@@ -11,6 +11,8 @@ import {
 } from "@ionic/react";
 import { obtenerRetosPendientes, aceptarReto } from "../../service/retoService";
 import { useAuth } from "../../context/AuthContext";
+import { getFirestore, getDoc, doc } from "firebase/firestore";
+import { enviarNotificacionPush } from "../../service/notifacationService";
 
 const RetosRecibidos: React.FC = () => {
   const { user } = useAuth();
@@ -24,11 +26,36 @@ const RetosRecibidos: React.FC = () => {
   }, [user]);
 
   const handleAceptar = async (retoId: string) => {
-    const puntajeSimulado = Math.floor(Math.random() * 100); // reemplaza con el puntaje real si aplica
-    await aceptarReto(retoId, puntajeSimulado);
-    setToastMsg("¡Reto aceptado!");
-    setRetos(retos.filter((r) => r.id !== retoId));
-  };
+  const puntajeSimulado = Math.floor(Math.random() * 100);
+
+  await aceptarReto(retoId, puntajeSimulado);
+  setToastMsg("¡Reto aceptado!");
+  setRetos(retos.filter((r) => r.id !== retoId));
+
+  // 🔔 Notificar al emisor del reto
+  try {
+    const reto = retos.find((r) => r.id === retoId);
+    const db = getFirestore();
+    const emisorDoc = await getDoc(doc(db, "usuarios", reto.emisorUid));
+    const emisorData = emisorDoc.data();
+    const token = emisorData?.fcmToken;
+
+    if (token) {
+      await enviarNotificacionPush({
+        token,
+        title: "¡Aceptaron tu reto!",
+        body: `${user?.displayName || "Tu amigo"} aceptó tu reto con ${puntajeSimulado} puntos.`,
+        data: {
+          tipo: "aceptado",
+          receptorUid: user?.uid || "",
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error al notificar al emisor:", error);
+  }
+};
+
 
   return (
     <IonPage>

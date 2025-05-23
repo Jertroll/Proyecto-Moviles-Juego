@@ -18,6 +18,9 @@ import "@ionic/react/css/display.css";
 import "@ionic/react/css/palettes/dark.system.css";
 import "./theme/variables.css";
 import Login from "./pages/Login";
+import EnviarReto from "./components/Retos/EnviarReto";
+import RetosRecibidos from "./components/Retos/RetosRecibidos";
+import HistorialRetos from "./components/Retos/HistorialRetos";
 
 setupIonicReact();
 
@@ -25,12 +28,15 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        <Route exact path="/">
+        <Route exact path="/home">
           <Home />
         </Route>
         <Route exact path="/jugar">
           <Juego />
         </Route>
+        <Route exact path="/enviar-reto" component={EnviarReto} />
+        <Route exact path="/retos-recibidos" component={RetosRecibidos} />
+        <Route exact path="/historial-retos" component={HistorialRetos} />
         <Route exact path="/login">
           <Login />
         </Route>
