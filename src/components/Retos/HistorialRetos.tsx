@@ -6,13 +6,16 @@ import {
   IonList,
   IonItem,
   IonLabel,
+  IonButton,
 } from "@ionic/react";
+import { useHistory } from "react-router-dom";
 import { obtenerHistorial } from "../../service/retoService";
 import { useAuth } from "../../context/AuthContext";
 
 const HistorialRetos: React.FC = () => {
   const { user } = useAuth();
   const [historial, setHistorial] = useState<any[]>([]);
+  const history = useHistory();
 
   useEffect(() => {
     if (user) {
@@ -30,12 +33,18 @@ const HistorialRetos: React.FC = () => {
               <IonLabel>
                 <p>De: {reto.emisorUid}</p>
                 <p>Para: {reto.receptorUid}</p>
-                <p>Puntajes: {reto.puntajeEmisor} - {reto.puntajeReceptor ?? "Sin jugar"}</p>
+                <p>
+                  Puntajes: {reto.puntajeEmisor} - {reto.puntajeReceptor ?? "Sin jugar"}
+                </p>
                 <p>Estado: {reto.estado}</p>
               </IonLabel>
             </IonItem>
           ))}
         </IonList>
+
+        <IonButton expand="block" onClick={() => history.push("/")}>
+          Volver al Home
+        </IonButton>
       </IonContent>
     </IonPage>
   );

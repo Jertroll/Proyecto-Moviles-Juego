@@ -13,7 +13,7 @@ import { obtenerRetosPendientes, aceptarReto } from "../../service/retoService";
 import { useAuth } from "../../context/AuthContext";
 import { getFirestore, getDoc, doc } from "firebase/firestore";
 import { enviarNotificacionPush } from "../../service/notification";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
 const RetosRecibidos: React.FC = () => {
   const { user } = useAuth();
@@ -40,16 +40,17 @@ const RetosRecibidos: React.FC = () => {
     fetchRetos();
   }, [user]);
 
-  const history = useHistory(); 
+ const history = useHistory(); // debe ir dentro del componente
+
 const handleAceptar = async (retoId: string) => {
- const reto = retos.find((r) => r.id === retoId);
+  const reto = retos.find((r) => r.id === retoId);
 
   if (!reto) {
     setToastError("Reto no encontrado.");
     return;
   }
 
-  history.push("/jugar", { retoId }); 
+  history.push("/jugar", { retoId }); // ✅ Redirige al juego con el ID
 }
 
   return (
