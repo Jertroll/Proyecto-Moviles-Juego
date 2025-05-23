@@ -13,7 +13,7 @@ import {
 import { crearReto } from "../../service/retoService";
 import { useAuth } from "../../context/AuthContext";
 import { getFirestore, collection, getDocs, getDoc, doc } from "firebase/firestore";
-import { enviarNotificacionPush } from "../../service/notifacationService";
+import { enviarNotificacionPush } from "../../service/notification";
 
 interface Props {
   location: {
@@ -36,27 +36,34 @@ const EnviarReto: React.FC<Props> = ({ location }) => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [receptorUid, setReceptorUid] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [toastError, setToastError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
-      const db = getFirestore();
-      const usuariosSnapshot = await getDocs(collection(db, "usuarios"));
-      const lista: Usuario[] = [];
+      try {
+        const db = getFirestore();
+        const usuariosSnapshot = await getDocs(collection(db, "usuarios"));
+        const lista: Usuario[] = [];
 
-      usuariosSnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (doc.id !== user?.uid) {
-          lista.push({
-            uid: doc.id,
-            nombre: data.nombre || "Sin nombre",
-            correo: data.correo || "",
-          });
-        }
-      });
+        usuariosSnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (doc.id !== user?.uid) {
+            lista.push({
+              uid: doc.id,
+              nombre: data.nombre || "Sin nombre",
+              correo: data.correo || "",
+            });
+          }
+        });
 
-      setUsuarios(lista);
-      setLoading(false);
+        setUsuarios(lista);
+      } catch (error) {
+        console.error("Error al obtener usuarios:", error);
+        setToastError("Error al cargar usuarios.");
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchUsuarios();
@@ -70,25 +77,35 @@ const EnviarReto: React.FC<Props> = ({ location }) => {
       setShowToast(true);
       setReceptorUid("");
 
+      // Enviar notificación al receptor
       const db = getFirestore();
-      const receptorDoc = await getDoc(doc(db, "usuarios", receptorUid));
-      const receptorData = receptorDoc.data();
-      const token = receptorData?.tokenDispositivo; 
+      const receptorDocRef = doc(db, "usuarios", receptorUid);
+      const receptorDoc = await getDoc(receptorDocRef);
 
-      if (token) {
-        await enviarNotificacionPush({
-          token,
-          title: "Nuevo reto recibido",
-          body: `${user.displayName || "Un jugador"} te ha retado con ${puntajeActual} puntos.`,
-          data: {
-            tipo: "reto",
-            emisorUid: user.uid,
-          },
-        });
+      if (!receptorDoc.exists()) {
+        throw new Error("Usuario receptor no encontrado.");
       }
+
+      const receptorData = receptorDoc.data();
+      const token = receptorData?.tokenDispositivo;
+
+      if (!token) {
+        console.warn("El usuario no tiene un token registrado.");
+        return;
+      }
+
+      await enviarNotificacionPush({
+        token,
+        title: "Nuevo reto recibido",
+        body: `${user.displayName || "Un jugador"} te ha retado con ${puntajeActual} puntos.`,
+        data: {
+          tipo: "reto",
+          emisorUid: user.uid,
+        },
+      });
     } catch (error) {
       console.error("Error al enviar reto:", error);
-      alert("Hubo un error al enviar el reto.");
+      setToastError("Hubo un error al enviar el reto.");
     }
   };
 
@@ -139,6 +156,14 @@ const EnviarReto: React.FC<Props> = ({ location }) => {
           message="Reto enviado exitosamente."
           duration={2000}
           color="success"
+        />
+
+        <IonToast
+          isOpen={!!toastError}
+          onDidDismiss={() => setToastError("")}
+          message={toastError}
+          duration={2500}
+          color="danger"
         />
       </IonContent>
     </IonPage>

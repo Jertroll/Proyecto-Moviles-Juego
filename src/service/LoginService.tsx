@@ -15,18 +15,18 @@ import {
 import { auth, messaging } from "../config/firebaseConfig";
 import { getToken } from "firebase/messaging";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
+import "./LoginService.css";
 
-const vapidKey =
-  "BAffDkGrxLFl2QWIWxfnh4MaTZmqnYgmrM-ddelh37V_dkLlyfmExc6e5yzL252bUHTsuqSLSNSRsMAwyTIRL_s";
-
-const LoginEmailAndPassword: React.FC = () => {
+const LoginService: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const history = useHistory();
 
-  const guardarTokenDispositivo = async (uid: string, email: string) => {
+  const vapidKey =
+  "BAffDkGrxLFl2QWIWxfnh4MaTZmqnYgmrM-ddelh37V_dkLlyfmExc6e5yzL252bUHTsuqSLSNSRsMAwyTIRL_s";
+    const guardarTokenDispositivo = async (uid: string, email: string) => {
     try {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
@@ -58,7 +58,6 @@ const LoginEmailAndPassword: React.FC = () => {
       console.error("Error al obtener el token de dispositivo:", error);
     }
   };
-
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -67,31 +66,35 @@ const LoginEmailAndPassword: React.FC = () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       await guardarTokenDispositivo(userCredential.user.uid, email);
-      history.replace("/home");
+      history.replace("/");
     } catch (error: any) {
       setError(error.message);
     }
     setLoading(false);
   };
+
 
   const handleRegister = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await guardarTokenDispositivo(userCredential.user.uid, email);
-      history.replace("/home");
+      await createUserWithEmailAndPassword(auth, email, password);
+      history.replace("/");
     } catch (error: any) {
       setError(error.message);
     }
     setLoading(false);
   };
 
+  if (loading) {
+    return <IonLoading isOpen message="Procesando..." />;
+  }
+
   return (
-    <>
-      <form onSubmit={handleLogin}>
-        <IonItem>
+    <div className="login-container">
+      <form onSubmit={handleLogin} className="login-form">
+        <IonItem lines="none">
           <IonLabel position="floating">Email</IonLabel>
           <IonInput
             type="email"
@@ -100,7 +103,7 @@ const LoginEmailAndPassword: React.FC = () => {
             required
           />
         </IonItem>
-        <IonItem>
+        <IonItem lines="none">
           <IonLabel position="floating">Password</IonLabel>
           <IonInput
             type="password"
@@ -109,29 +112,23 @@ const LoginEmailAndPassword: React.FC = () => {
             required
           />
         </IonItem>
-        <IonButton expand="block" type="submit" disabled={!email || !password}>
-          Login
+        {error && <IonText color="danger">{error}</IonText>}
+        <IonButton expand="block" type="submit" disabled={!email || !password} className="main-button">
+          Iniciar Sesión
         </IonButton>
       </form>
-
       <IonButton
         expand="block"
         color="primary"
         onClick={handleRegister}
         disabled={!email || !password}
-        style={{ marginTop: "1rem", color: "black" }}
+        className="main-button"
+        style={{ marginTop: "1rem" }}
       >
         Registrar
       </IonButton>
-
-      {error && (
-        <IonText color="danger">
-          <p>{error}</p>
-        </IonText>
-      )}
-      <IonLoading isOpen={loading} message="Procesando..." />
-    </>
+    </div>
   );
 };
 
-export default LoginEmailAndPassword;
+export default LoginService;

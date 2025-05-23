@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { onAuthStateChanged, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
+import Notification from "../service/notificationService"; // ✅ CORREGIDO
 
 const AuthContext = createContext<any>(null);
 
@@ -9,20 +10,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Configura la persistencia antes de suscribirte al estado
     setPersistence(auth, browserLocalPersistence)
       .then(() => {
-        // Ahora que la persistencia está lista, suscríbete al estado de autenticación
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
           setUser(user);
           setLoading(false);
+
+          if (user?.uid) {
+            await Notification.getInstance().initialize(user.uid);
+          }
         });
 
         return () => unsubscribe();
       })
       .catch((error) => {
         console.error("Error al configurar persistencia:", error);
-        setLoading(false); // Para que no quede cargando eternamente si falla
+        setLoading(false);
       });
   }, []);
 

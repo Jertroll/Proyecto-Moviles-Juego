@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import { IonPage, IonContent, IonButton } from "@ionic/react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import Acelerometro from "./Acelerometro";
 import Estrellas from "./Estrellas";
 import GameLogic from "./Logica";
+import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
+import { useAuth } from "../../context/AuthContext";
+import { enviarNotificacionPush } from "../../service/notification";
 
 const Juego = () => {
   const history = useHistory();
+  const location = useLocation<{ retoId?: string }>();
+  const retoId = location.state?.retoId ?? null;
+
+  const { user } = useAuth();
+
   const BALL_SIZE = 40;
   const STAR_SIZE_AMARILLA = 30;
   const STAR_SIZE_MORADA = 40;
@@ -41,9 +49,50 @@ const Juego = () => {
     setScore((prev) => prev + puntos);
   };
 
-  const handleGoHome = () => {
+  const finalizarJuego = async () => {
+    if (!user) return;
+
+    // Si se jugó como reto, actualiza Firestore
+    if (retoId) {
+      try {
+        const db = getFirestore();
+        const retoRef = doc(db, "retos", retoId);
+        await updateDoc(retoRef, {
+          puntajeReceptor: score,
+          estado: "finalizado",
+        });
+
+        // Notificar al emisor
+        const retoDoc = await getDoc(retoRef);
+        const emisorUid = retoDoc.data()?.emisorUid;
+
+        if (emisorUid) {
+          const emisorDoc = await getDoc(doc(db, "usuarios", emisorUid));
+          const token = emisorDoc.data()?.tokenDispositivo;
+
+          if (token) {
+            await enviarNotificacionPush({
+              token,
+              title: "¡Reto aceptado!",
+              body: `${user.displayName || "Tu amigo"} jugó y obtuvo ${score} puntos.`,
+              data: {
+                tipo: "resultadoReto",
+                retoId,
+              },
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error al guardar resultado del reto:", error);
+      }
+    }
+
     resetGame();
-    history.push("/");
+    history.push("/historial-retos"); 
+  };
+
+  const handleGoHome = () => {
+    finalizarJuego();
   };
 
   useEffect(() => {
@@ -69,7 +118,6 @@ const Juego = () => {
   return (
     <IonPage>
       <IonContent fullscreen>
-        {/* HUD */}
         <div
           style={{
             position: "absolute",
@@ -83,7 +131,6 @@ const Juego = () => {
           ⏱ {timeLeft}s | ⭐ {score}
         </div>
 
-        {/* Pantalla final */}
         {gameOver && (
           <div
             style={{
@@ -109,24 +156,10 @@ const Juego = () => {
               Tu puntaje: {score}
             </h2>
 
-            <IonButton
-              onClick={handleGoHome}
-              style={{
-                "--background": "#3880ff",
-                "--background-hover": "#4d8cff",
-                "--color": "white",
-                fontSize: "1.2rem",
-                padding: "20px 30px",
-                borderRadius: "10px",
-              }}
-            >
-              Salir
-            </IonButton>
-
+            <IonButton onClick={handleGoHome}>Salir</IonButton>
           </div>
         )}
 
-        {/* Estrellas y movimiento */}
         <Estrellas stars={stars} setStars={setStars} gameOver={gameOver} />
         <Acelerometro
           position={position}
