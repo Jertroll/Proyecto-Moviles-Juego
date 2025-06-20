@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { IonPage, IonContent, IonButton } from "@ionic/react";
+import {
+  IonPage,
+  IonContent,
+  IonButton,
+  IonAlert,
+} from "@ionic/react";
 import { useHistory, useLocation } from "react-router-dom";
 import Acelerometro from "./Acelerometro";
 import Estrellas from "./Estrellas";
@@ -32,6 +37,7 @@ const Juego = () => {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
   const [gameOver, setGameOver] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   const resetGame = () => {
     setPosition({
@@ -52,7 +58,6 @@ const Juego = () => {
   const finalizarJuego = async () => {
     if (!user) return;
 
-    // Si se jugó como reto, actualiza Firestore
     if (retoId) {
       try {
         const db = getFirestore();
@@ -62,7 +67,6 @@ const Juego = () => {
           estado: "finalizado",
         });
 
-        // Notificar al emisor
         const retoDoc = await getDoc(retoRef);
         const emisorUid = retoDoc.data()?.emisorUid;
 
@@ -88,11 +92,7 @@ const Juego = () => {
     }
 
     resetGame();
-    history.push("/historial-retos"); 
-  };
-
-  const handleGoHome = () => {
-    finalizarJuego();
+    history.push("/historial-retos");
   };
 
   useEffect(() => {
@@ -156,9 +156,35 @@ const Juego = () => {
               Tu puntaje: {score}
             </h2>
 
-            <IonButton onClick={handleGoHome}>Salir</IonButton>
+            <IonButton onClick={() => setShowAlert(true)}>Opciones</IonButton>
           </div>
         )}
+
+        <IonAlert
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          header="¿ Que deseas hacer?"
+          message="Puedes ver el historial de retos o salir del juego."
+          buttons={[
+            {
+              text: "Cancelar",
+              role: "cancel",
+            },
+            {
+              text: "Ver historial",
+              handler: () => {
+                finalizarJuego(); 
+              },
+            },
+            {
+              text: "Salir del juego",
+              handler: () => {
+                resetGame();
+                history.push("/"); 
+              },
+            },
+          ]}
+        />
 
         <Estrellas stars={stars} setStars={setStars} gameOver={gameOver} />
         <Acelerometro
