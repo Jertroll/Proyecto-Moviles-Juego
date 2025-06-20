@@ -4,6 +4,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
+import { auth } from "../config/firebaseConfig";
 import {
   IonInput,
   IonButton,
@@ -12,7 +13,6 @@ import {
   IonText,
   IonLoading,
 } from "@ionic/react";
-import { auth } from "../config/firebaseConfig";
 import "./LoginService.css";
 
 const LoginService: React.FC = () => {
