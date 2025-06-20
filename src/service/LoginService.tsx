@@ -4,7 +4,6 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "../config/firebaseConfig";
 import {
   IonInput,
   IonButton,
@@ -13,7 +12,16 @@ import {
   IonText,
   IonLoading,
 } from "@ionic/react";
+import { auth, messaging } from "../config/firebaseConfig";
+import { getToken as getWebToken } from "firebase/messaging";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { Capacitor } from "@capacitor/core";
+import { FirebaseMessaging } from "@capacitor-firebase/messaging";
 import "./LoginService.css";
+// ... (importaciones sin cambios)
+
+const vapidKey =
+  "BAffDkGrxLFl2QWIWxfnh4MaTZmqnYgmrM-ddelh37V_dkLlyfmExc6e5yzL252bUHTsuqSLSNSRsMAwyTIRL_s";
 
 const LoginService: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -22,17 +30,56 @@ const LoginService: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const history = useHistory();
 
+  const guardarTokenDispositivo = async (uid: string, email: string) => {
+    try {
+      let token: string | undefined;
+
+      if (Capacitor.isNativePlatform()) {
+        const permissionResult = await FirebaseMessaging.requestPermissions();
+        if (permissionResult.receive === "granted") {
+          const tokenResult = await FirebaseMessaging.getToken();
+          token = tokenResult.token;
+        }
+      } else {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          token = await getWebToken(messaging, { vapidKey });
+        }
+      }
+
+      const db = getFirestore();
+      const userDocRef = doc(db, "usuarios", uid);
+
+      const userData: any = {
+        correo: email,
+        fechaRegistro: new Date().toISOString(),
+      };
+
+      if (token) {
+        userData.tokenDispositivo = token;
+      }
+
+      await setDoc(userDocRef, userData, { merge: true });
+      console.log("Usuario registrado o actualizado en Firestore");
+
+    } catch (e) {
+      console.error("Error guardando datos del usuario:", e);
+    }
+  };
+
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await guardarTokenDispositivo(userCredential.user.uid, email);
       history.replace("/");
-    } catch (error: any) {
-      setError(error.message);
+    } catch (e: any) {
+      setError(e.message);
     }
+
     setLoading(false);
   };
 
@@ -41,17 +88,16 @@ const LoginService: React.FC = () => {
     setError(null);
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log("UID:", userCredential.user.uid);
+      await guardarTokenDispositivo(userCredential.user.uid, email);
       history.replace("/");
-    } catch (error: any) {
-      setError(error.message);
+    } catch (e: any) {
+      setError(e.message);
     }
+
     setLoading(false);
   };
-
-  if (loading) {
-    return <IonLoading isOpen message="Procesando..." />;
-  }
 
   return (
     <div className="login-container">
@@ -75,7 +121,12 @@ const LoginService: React.FC = () => {
           />
         </IonItem>
         {error && <IonText color="danger">{error}</IonText>}
-        <IonButton expand="block" type="submit" disabled={!email || !password} className="main-button">
+        <IonButton
+          expand="block"
+          type="submit"
+          disabled={!email || !password}
+          className="main-button"
+        >
           Iniciar Sesión
         </IonButton>
       </form>
@@ -89,6 +140,7 @@ const LoginService: React.FC = () => {
       >
         Registrar
       </IonButton>
+      <IonLoading isOpen={loading} message="Procesando..." />
     </div>
   );
 };
