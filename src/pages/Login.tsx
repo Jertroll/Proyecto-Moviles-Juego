@@ -1,5 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from "@ionic/react";
-import LoginEmailAndPassword from "../service/AuthService";
+import LoginService from "../service/LoginService";
 
 const Login: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ const Login: React.FC = () => {
             <IonTitle size='large'>Ingreso</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <LoginEmailAndPassword />
+        <LoginService />
       </IonContent>
     </IonPage>
   );
