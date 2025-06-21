@@ -27,7 +27,7 @@ const Juego = () => {
   const BALL_SIZE = 40;
   const STAR_SIZE_AMARILLA = 30;
   const STAR_SIZE_MORADA = 40;
-  const INITIAL_TIME = 10;
+  const INITIAL_TIME = 60;
 
   const [position, setPosition] = useState({
     x: window.innerWidth / 2 - BALL_SIZE / 2,
@@ -154,6 +154,7 @@ const Juego = () => {
 
   const handleGoHome = () => {
     finalizarJuego();
+    history.push("/");
   };
 
   useEffect(() => {
@@ -250,14 +251,6 @@ const Juego = () => {
                 history.push("/historial-retos");
               },
             },
-            {
-              text: "Salir del juego",
-              handler: () => {
-                history.push("/home");
-                resetGame();
-
-              },
-            },
           ]}
         />
 
@@ -321,7 +314,7 @@ const Juego = () => {
                 style={{
                   width: "100%",
                   opacity: !nombreRegistro.trim() ? 0.7 : 1,
-                  color: "black",
+                  color: "white",
                 }}
               >
                 Registrar
