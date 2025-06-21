@@ -3,8 +3,16 @@ import {
   IonPage,
   IonContent,
   IonButton,
+  IonModal,
+  IonInput,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonText,
   IonAlert,
 } from "@ionic/react";
+
 import { useHistory, useLocation } from "react-router-dom";
 import Acelerometro from "./Acelerometro";
 import Estrellas from "./Estrellas";
@@ -12,6 +20,7 @@ import GameLogic from "./Logica";
 import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import { useAuth } from "../../context/AuthContext";
 import { enviarNotificacionPush } from "../../service/notification";
+import { registrarPuntajeGlobal } from "../../service/RegistrarPuntajeService";
 
 const Juego = () => {
   const history = useHistory();
@@ -23,7 +32,7 @@ const Juego = () => {
   const BALL_SIZE = 40;
   const STAR_SIZE_AMARILLA = 30;
   const STAR_SIZE_MORADA = 40;
-  const INITIAL_TIME = 60;
+  const INITIAL_TIME = 10;
 
   const [position, setPosition] = useState({
     x: window.innerWidth / 2 - BALL_SIZE / 2,
@@ -38,6 +47,9 @@ const Juego = () => {
   const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
   const [gameOver, setGameOver] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [showRegistroModal, setShowRegistroModal] = useState(false);
+  const [nombreRegistro, setNombreRegistro] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
 
   const startGame = () => {
     // Limpiar cualquier timer previo
@@ -67,7 +79,25 @@ const Juego = () => {
       });
     }, 1000);
   };
-  const [showAlert, setShowAlert] = useState(false);
+
+  const handleRegistroPuntaje = async () => {
+    if (!user || !nombreRegistro.trim()) {
+      setShowRegistroModal(false);
+      return;
+    }
+
+    try {
+      await registrarPuntajeGlobal({
+        uid: user.uid,
+        puntaje: score,
+        nombre: nombreRegistro.trim(),
+      });
+    } catch (error) {
+      console.error("Error al registrar puntaje:", error);
+    }
+
+    setShowRegistroModal(false);
+  };
 
   const resetGame = () => {
     setPosition({
@@ -185,6 +215,9 @@ const Juego = () => {
             </h2>
 
             <IonButton onClick={startGame}>Volver a jugar</IonButton>
+            <IonButton onClick={() => setShowRegistroModal(true)}>
+              Registrar puntaje
+            </IonButton>
             <IonButton onClick={handleGoHome}>Salir</IonButton>
             <IonButton onClick={() => setShowAlert(true)}>Opciones</IonButton>
           </div>
@@ -203,14 +236,14 @@ const Juego = () => {
             {
               text: "Ver historial",
               handler: () => {
-                finalizarJuego(); 
+                finalizarJuego();
               },
             },
             {
               text: "Salir del juego",
               handler: () => {
                 resetGame();
-                history.push("/"); 
+                history.push("/");
               },
             },
           ]}
@@ -230,6 +263,75 @@ const Juego = () => {
           starSizeAmarilla={STAR_SIZE_AMARILLA}
           starSizeMorada={STAR_SIZE_MORADA}
         />
+
+        <IonModal isOpen={showRegistroModal} backdropDismiss={false}>
+          <IonContent className="main-screen">
+            <div className="button-container" style={{ padding: "20px" }}>
+              <h1
+                style={{
+                  color: "white",
+                  textAlign: "center",
+                  marginBottom: "30px",
+                  fontSize: "1.5rem",
+                }}
+              >
+                Registrar Puntaje Global
+              </h1>
+
+              <div
+                style={{
+                  width: "100%",
+                  marginBottom: "30px",
+                  background: "rgba(124, 73, 122, 0.7)",
+                  borderRadius: "30px",
+                  padding: "15px 20px",
+                }}
+              >
+                <IonInput
+                  placeholder="Ingresa tu nombre"
+                  value={nombreRegistro}
+                  onIonInput={(e) =>
+                    setNombreRegistro(e.detail.value as string)
+                  }
+                  style={{
+                    "--color": "white",
+                    "--placeholder-color": "rgba(255, 255, 255, 0.7)",
+                    "--padding-start": "10px",
+                    width: "100%",
+                  }}
+                ></IonInput>
+              </div>
+
+              <button
+                
+                className="main-button"
+                onClick={handleRegistroPuntaje}
+                disabled={!nombreRegistro.trim()}
+                style={{
+                  
+                  width: "100%",
+                  opacity: !nombreRegistro.trim() ? 0.7 : 1,
+                  color: "black"
+                }}
+              >
+                Registrar
+              </button>
+
+              <button
+                className="main-button"
+                onClick={() => setShowRegistroModal(false)}
+                style={{
+                  width: "100%",
+                  background: "transparent",
+                  border: "2px solid rgb(124, 73, 122)",
+                  color: "white",
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );
