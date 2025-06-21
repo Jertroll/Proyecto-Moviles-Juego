@@ -46,12 +46,6 @@ const Home: React.FC = () => {
             </button>
             <button
               className="main-button"
-              onClick={() => navigateTo("/enviar-reto")}
-            >
-              Retar Amigos
-            </button>
-            <button
-              className="main-button"
               onClick={() => navigateTo("/retos-recibidos")}
             >
               Retos Recibidos

@@ -5,11 +5,6 @@ import {
   IonButton,
   IonModal,
   IonInput,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonText,
   IonAlert,
 } from "@ionic/react";
 
@@ -252,13 +247,15 @@ const Juego = () => {
               text: "Ver historial",
               handler: () => {
                 finalizarJuego();
+                history.push("/historial-retos");
               },
             },
             {
               text: "Salir del juego",
               handler: () => {
+                history.push("/home");
                 resetGame();
-                history.push("/");
+
               },
             },
           ]}

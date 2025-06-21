@@ -100,7 +100,7 @@ ion-label.floating[position="floating"] {
 
 /* Botón secundario */
 .secondary-button {
-  width: 22%;
+  width: 100%;
   padding: 16px;
   border: 1px solid #3498db;
   border-radius: 8px;
