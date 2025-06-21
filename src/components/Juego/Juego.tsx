@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { IonPage, IonContent, IonButton } from "@ionic/react";
 import { useHistory, useLocation } from "react-router-dom";
 import Acelerometro from "./Acelerometro";
@@ -32,6 +32,36 @@ const Juego = () => {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
   const [gameOver, setGameOver] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startGame = () => {
+    // Limpiar cualquier timer previo
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    // Reiniciar estados
+    setGameOver(false);
+    setScore(0);
+    setTimeLeft(INITIAL_TIME);
+    setStars([]);
+    setPosition({
+      x: window.innerWidth / 2 - BALL_SIZE / 2,
+      y: window.innerHeight / 2 - BALL_SIZE / 2,
+    });
+
+    // Iniciar nuevo temporizador
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          setGameOver(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   const resetGame = () => {
     setPosition({
@@ -74,7 +104,9 @@ const Juego = () => {
             await enviarNotificacionPush({
               token,
               title: "¡Reto aceptado!",
-              body: `${user.displayName || "Tu amigo"} jugó y obtuvo ${score} puntos.`,
+              body: `${
+                user.displayName || "Tu amigo"
+              } jugó y obtuvo ${score} puntos.`,
               data: {
                 tipo: "resultadoReto",
                 retoId,
@@ -88,7 +120,7 @@ const Juego = () => {
     }
 
     resetGame();
-    history.push("/historial-retos"); 
+    history.push("/historial-retos");
   };
 
   const handleGoHome = () => {
@@ -96,22 +128,14 @@ const Juego = () => {
   };
 
   useEffect(() => {
-    resetGame();
+    startGame();
+  }, []);
 
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setGameOver(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
+  useEffect(() => {
     return () => {
-      clearInterval(timer);
-      resetGame();
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     };
   }, []);
 
@@ -156,6 +180,7 @@ const Juego = () => {
               Tu puntaje: {score}
             </h2>
 
+            <IonButton onClick={startGame}>Volver a jugar</IonButton>
             <IonButton onClick={handleGoHome}>Salir</IonButton>
           </div>
         )}
