@@ -252,6 +252,7 @@ const Juego = () => {
               text: "Ver historial",
               handler: () => {
                 finalizarJuego();
+                history.push("/historial-retos");
               },
             },
             {
