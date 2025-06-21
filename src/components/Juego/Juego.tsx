@@ -27,7 +27,7 @@ const Juego = () => {
   const BALL_SIZE = 40;
   const STAR_SIZE_AMARILLA = 30;
   const STAR_SIZE_MORADA = 40;
-  const INITIAL_TIME = 60;
+  const INITIAL_TIME = 10;
 
   const [position, setPosition] = useState({
     x: window.innerWidth / 2 - BALL_SIZE / 2,
