@@ -50,6 +50,7 @@ const Juego = () => {
   const [showRegistroModal, setShowRegistroModal] = useState(false);
   const [nombreRegistro, setNombreRegistro] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const scoreRef = useRef(0);
 
   const startGame = () => {
     // Limpiar cualquier timer previo
@@ -166,6 +167,10 @@ const Juego = () => {
   }, []);
 
   useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
+
+  useEffect(() => {
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -218,8 +223,19 @@ const Juego = () => {
             <IonButton onClick={() => setShowRegistroModal(true)}>
               Registrar puntaje
             </IonButton>
-            <IonButton onClick={handleGoHome}>Salir</IonButton>
+            <IonButton
+              onClick={() => {
+                history.push({
+                  pathname: "/enviar-reto",
+                  state: { puntaje: score },
+                });
+              }}
+            >
+              Retar Amigos
+            </IonButton>
+
             <IonButton onClick={() => setShowAlert(true)}>Opciones</IonButton>
+            <IonButton onClick={handleGoHome}>Salir</IonButton>
           </div>
         )}
 
@@ -303,15 +319,13 @@ const Juego = () => {
               </div>
 
               <button
-                
                 className="main-button"
                 onClick={handleRegistroPuntaje}
                 disabled={!nombreRegistro.trim()}
                 style={{
-                  
                   width: "100%",
                   opacity: !nombreRegistro.trim() ? 0.7 : 1,
-                  color: "black"
+                  color: "black",
                 }}
               >
                 Registrar
