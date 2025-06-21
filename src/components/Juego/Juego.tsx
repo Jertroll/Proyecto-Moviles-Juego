@@ -155,7 +155,6 @@ const Juego = () => {
     }
 
     resetGame();
-    history.push("/historial-retos");
   };
 
   const handleGoHome = () => {
