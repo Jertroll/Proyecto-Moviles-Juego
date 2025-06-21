@@ -64,6 +64,12 @@ const Home: React.FC = () => {
             </button>
             <button
               className="main-button"
+              onClick={() => navigateTo("/puntuaje-global")}
+            >
+              Top 5 Global
+            </button>
+            <button
+              className="main-button"
               color="danger"
               onClick={async () => {
                 await cerrarSesion();
