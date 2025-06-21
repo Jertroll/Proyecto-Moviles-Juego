@@ -32,6 +32,7 @@ const EnviarReto: React.FC = () => {
   const [toastError, setToastError] = useState("");
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     if (!user) return;
 
