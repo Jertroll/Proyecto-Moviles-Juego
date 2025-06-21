@@ -253,8 +253,9 @@ const Juego = () => {
             {
               text: "Salir del juego",
               handler: () => {
+                history.push("/home");
                 resetGame();
-                history.push("/");
+
               },
             },
           ]}
