@@ -5,11 +5,6 @@ import {
   IonButton,
   IonModal,
   IonInput,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonText,
   IonAlert,
 } from "@ionic/react";
 
@@ -32,7 +27,7 @@ const Juego = () => {
   const BALL_SIZE = 40;
   const STAR_SIZE_AMARILLA = 30;
   const STAR_SIZE_MORADA = 40;
-  const INITIAL_TIME = 10;
+  const INITIAL_TIME = 60;
 
   const [position, setPosition] = useState({
     x: window.innerWidth / 2 - BALL_SIZE / 2,
